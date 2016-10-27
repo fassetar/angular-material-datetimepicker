@@ -1,6 +1,6 @@
 (function (moment) {
   'use strict';
-  var moduleName = "ngMaterialDatePicker";
+  var moduleName = "ngMaterialTimePicker";
 
   var VIEW_STATES = {
     DATE: 0,
@@ -24,7 +24,7 @@
     + '                <div class="dtp-actual-day" ng-show="picker.dateMode">{{picker.currentDate.format("dddd")}}</div>'
     + '                <div class="dtp-actual-day" ng-show="picker.timeMode">{{picker.params.shortTime ? picker.currentDate.format("A") : " "}}</div>'
     + '                <div class="dtp-close text-right">'
-    + '                    <a href="#" mdc-dtp-noclick ng-click="picker.hide()">&times;</a>'
+    + '                    <a href="#" md-dtp-noclick ng-click="picker.hide()">&times;</a>'
     + '                </div>'
     + '            </header>'
     + '            <div class="dtp-date" ng-show="picker.params.date">'
@@ -42,20 +42,20 @@
     + '                <div class="dtp-actual-maxtime">{{picker.currentNearest5Minute().format(picker.params.shortTime ? "hh:mm" : "HH:mm")}}</div>'
     + '            </div>'
     + '            <div class="dtp-picker">'
-    + '                <mdc-datetime-picker-calendar date="picker.currentDate" picker="picker" class="dtp-picker-calendar" ng-show="picker.currentView === picker.VIEWS.DATE"></mdc-datetime-picker-calendar>'
+    + '                <md-datetime-picker-calendar date="picker.currentDate" picker="picker" class="dtp-picker-calendar" ng-show="picker.currentView === picker.VIEWS.DATE"></md-datetime-picker-calendar>'
     + '                <div class="dtp-picker-datetime" ng-show="picker.currentView !== picker.VIEWS.DATE">'
     + '                    <div class="dtp-actual-meridien">'
     + '                        <div class="left p20">'
-    + '                            <a href="#" mdc-dtp-noclick class="dtp-meridien-am" ng-class="{selected: picker.meridien == \'AM\'}" ng-click="picker.selectAM()">{{picker.params.amText}}</a>'
+    + '                            <a href="#" md-dtp-noclick class="dtp-meridien-am" ng-class="{selected: picker.meridien == \'AM\'}" ng-click="picker.selectAM()">{{picker.params.amText}}</a>'
     + '                        </div>'
     + '                        <div ng-show="!picker.timeMode" class="dtp-actual-time p60">{{picker.currentNearest5Minute().format(picker.params.shortTime ? "hh:mm" : "HH:mm")}}</div>'
     + '                        <div class="right p20">'
-    + '                            <a href="#" mdc-dtp-noclick class="dtp-meridien-pm" ng-class="{selected: picker.meridien == \'PM\'}" ng-click="picker.selectPM()">{{picker.params.pmText}}</a>'
+    + '                            <a href="#" md-dtp-noclick class="dtp-meridien-pm" ng-class="{selected: picker.meridien == \'PM\'}" ng-click="picker.selectPM()">{{picker.params.pmText}}</a>'
     + '                        </div>'
     + '                        <div class="clearfix"></div>'
     + '                    </div>'
-    + '                    <mdc-datetime-picker-clock mode="hours" ng-if="picker.currentView === picker.VIEWS.HOUR"></mdc-datetime-picker-clock>'
-    + '                    <mdc-datetime-picker-clock mode="minutes" ng-if="picker.currentView === picker.VIEWS.MINUTE"></mdc-datetime-picker-clock>'
+    + '                    <md-datetime-picker-clock mode="hours" ng-if="picker.currentView === picker.VIEWS.HOUR"></md-datetime-picker-clock>'
+    + '                    <md-datetime-picker-clock mode="minutes" ng-if="picker.currentView === picker.VIEWS.MINUTE"></md-datetime-picker-clock>'
     + '                </div>'
     + '            </div>'
     + '        </div>'
@@ -67,7 +67,7 @@
     + '</md-dialog>';
 
   angular.module(moduleName, ['ngMaterial'])
-    .provider('mdcDatetimePickerDefaultLocale', function () {
+    .provider('mdDatetimePickerDefaultLocale', function () {
       this.locale = 'en';
 
       this.$get = function () {
@@ -78,7 +78,7 @@
         this.locale = localeString;
       };
     })
-    .directive('mdcDatetimePicker', ['$mdDialog',
+    .directive('mdDatetimePicker', ['$mdDialog',
       function ($mdDialog) {
 
         return {
@@ -165,7 +165,7 @@
       }])
   ;
 
-  var PluginController = function ($scope, $mdDialog, mdcDatetimePickerDefaultLocale) {
+  var PluginController = function ($scope, $mdDialog, mdDatetimePickerDefaultLocale) {
     this.currentView = VIEW_STATES.DATE;
     this._dialog = $mdDialog;
 
@@ -182,7 +182,7 @@
       minDate: null,
       maxDate: null,
       currentDate: null,
-      lang: mdcDatetimePickerDefaultLocale,
+      lang: mdDatetimePickerDefaultLocale,
       weekStart: 0,
       shortTime: false,
       cancelText: 'Cancel',
@@ -195,7 +195,7 @@
     this.params = angular.extend(this.params, this.options);
     this.init();
   };
-  PluginController.$inject = ['$scope', '$mdDialog', 'mdcDatetimePickerDefaultLocale'];
+  PluginController.$inject = ['$scope', '$mdDialog', 'mdDatetimePickerDefaultLocale'];
   PluginController.prototype = {
     init: function () {
       this.timeMode = this.params.time && !this.params.date;
@@ -484,216 +484,8 @@
     }
   };
 
-
-  angular.module(moduleName)
-    .directive('mdcDatetimePickerCalendar', [
-      function () {
-
-        var YEAR_MIN = 1900,
-          YEAR_MAX = 2100,
-          MONTHS_IN_ALL = (YEAR_MAX - YEAR_MIN + 1) * 12,
-          ITEM_HEIGHT = 240,
-          MONTHS = [];
-        for (var i = 0; i < MONTHS_IN_ALL; i++) {
-          MONTHS.push(i);
-        }
-
-        var currentMonthIndex = function (date) {
-          var year = date.year();
-          var month = date.month();
-          return ((year - YEAR_MIN) * 12) + month - 1;
-        };
-
-        return {
-          restrict: 'E',
-          scope: {
-            picker: '=',
-            date: '='
-          },
-          bindToController: true,
-          controllerAs: 'cal',
-          controller: ['$scope',
-            function ($scope) {
-              var calendar = this,
-                picker = this.picker,
-                days = [];
-
-              for (var i = picker.params.weekStart; days.length < 7; i++) {
-                if (i > 6) {
-                  i = 0;
-                }
-                days.push(i.toString());
-              }
-
-              calendar.week = days;
-              if (!picker.maxDate && !picker.minDate) {
-                calendar.months = MONTHS;
-              } else {
-                var low = picker.minDate ? currentMonthIndex(picker.minDate) : 0;
-                var high = picker.maxDate ? (currentMonthIndex(picker.maxDate) + 1) : MONTHS_IN_ALL;
-                calendar.months = MONTHS.slice(low, high);
-              }
-
-
-              calendar.getItemAtIndex = function (index) {
-                var month = ((index + 1) % 12) || 12;
-                var year = YEAR_MIN + Math.floor(index / 12);
-                var monthObj = moment(picker.currentDate)
-                  .year(year)
-                  .month(month);
-                return generateMonthCalendar(monthObj);
-              };
-
-              calendar.topIndex = currentMonthIndex(picker.currentDate) - calendar.months[0];
-
-              $scope.$watch(function () {
-                return picker.currentDate ? picker.currentDate.format('YYYY-MM') : '';
-              }, function (val2, val1) {
-                if (val2 != val1) {
-                  var nDate = moment(val2, 'YYYY-MM');
-                  var index = currentMonthIndex(nDate) - calendar.months[0];
-                  if (calendar.topIndex != index) {
-                    calendar.topIndex = index;
-                  }
-                }
-              });
-
-              var generateMonthCalendar = function (date) {
-                var month = {};
-                if (date !== null) {
-                  month.name = date.format('MMMM YYYY');
-                  var startOfMonth = moment(date).locale(picker.params.lang).startOf('month')
-                    .hour(date.hour())
-                    .minute(date.minute())
-                    ;
-                  var iNumDay = startOfMonth.format('d');
-                  month.days = [];
-                  for (var i = startOfMonth.date(); i <= startOfMonth.daysInMonth(); i++) {
-                    if (i === startOfMonth.date()) {
-                      var iWeek = calendar.week.indexOf(iNumDay.toString());
-                      if (iWeek > 0) {
-                        for (var x = 0; x < iWeek; x++) {
-                          month.days.push(0);
-                        }
-                      }
-                    }
-                    month.days.push(moment(startOfMonth).locale(picker.params.lang).date(i));
-                  }
-
-                  var daysInAWeek = 7, daysTmp = [], slices = Math.ceil(month.days.length / daysInAWeek);
-                  for (var j = 0; j < slices; j++) {
-                    daysTmp.push(month.days.slice(j * daysInAWeek, (j + 1) * daysInAWeek));
-                  }
-                  month.days = daysTmp;
-                  return month;
-                }
-
-              };
-
-              calendar.toDay = function (i) {
-                return moment(parseInt(i), "d")
-                  .locale(picker.params.lang)
-                  .format("dd")
-                  .substring(0, 1);
-              };
-
-              calendar.isInRange = function (date) {
-                return picker.isAfterMinDate(moment(date), false, false)
-                  && picker.isBeforeMaxDate(moment(date), false, false);
-              };
-
-              calendar.selectDate = function (date) {
-                if (date) {
-                  if (calendar.isSelectedDay(date)) {
-                    return picker.ok();
-                  }
-                  picker.selectDate(moment(date).hour(calendar.date.hour()).minute(calendar.date.minute()));
-                }
-              };
-
-              calendar.isSelectedDay = function (m) {
-                return m && calendar.date.date() === m.date() && calendar.date.month() === m.month() && calendar.date.year() === m.year();
-              };
-
-            }
-          ],
-          template: '<md-virtual-repeat-container md-top-index="cal.topIndex" class="months">' +
-          '<div md-virtual-repeat="idx in cal.months" md-start-index="cal.topIndex" md-item-size="' + ITEM_HEIGHT + '">' +
-          '     <div mdc-datetime-picker-calendar-month idx="idx"></div>' +
-          '</div>' +
-          '</md-virtual-repeat-container>'
-        };
-      }])
-    .directive('mdcDatetimePickerCalendarMonth', ['$compile',
-      function ($compile) {
-        var buildCalendarContent = function (element, scope) {
-          var tbody = angular.element(element[0].querySelector('tbody'));
-          var calendar = scope.cal, month = scope.month;
-          tbody.html('');
-          month.days.forEach(function (weekDays, i) {
-            var tr = angular.element('<tr></tr>');
-            weekDays.forEach(function (weekDay, j) {
-              var td = angular.element('<td> </td>');
-              if (weekDay) {
-                var aOrSpan;
-                if (calendar.isInRange(weekDay)) {
-                  //build a
-                  var scopeRef = 'month["days"][' + i + '][' + j + ']';
-                  aOrSpan = angular.element("<a href='#' mdc-dtp-noclick></a>")
-                    .attr('ng-class', '{selected: cal.isSelectedDay(' + scopeRef + ')}')
-                    .attr('ng-click', 'cal.selectDate(' + scopeRef + ')')
-                  ;
-                } else {
-                  aOrSpan = angular.element('<span></span>')
-                }
-                aOrSpan
-                  .addClass('dtp-select-day')
-                  .html(weekDay.format('D'));
-                td.append(aOrSpan);
-              }
-              tr.append(td);
-            });
-            tbody.append(tr);
-          });
-          $compile(tbody)(scope);
-        };
-
-        return {
-          scope: {
-            idx: '='
-          },
-          require: '^mdcDatetimePickerCalendar',
-          restrict: 'AE',
-          template: '<div class="dtp-picker-month">{{month.name}}</div>'
-          + '<table class="table dtp-picker-days">'
-          + '    <thead>'
-          + '    <tr>'
-          + '        <th ng-repeat="day in cal.week">{{cal.toDay(day)}}</th>'
-          + '    </tr>'
-          + '    </thead>'
-          + '    <tbody>'
-          + '    </tbody>'
-          + '</table>',
-          link: function (scope, element, attrs, calendar) {
-            scope.cal = calendar;
-            scope.month = calendar.getItemAtIndex(parseInt(scope.idx));
-            buildCalendarContent(element, scope);
-            scope.$watch(function () {
-              return scope.idx;
-            }, function (idx, oldIdx) {
-              if (idx != oldIdx) {
-                scope.month = calendar.getItemAtIndex(parseInt(scope.idx));
-                buildCalendarContent(element, scope);
-              }
-            });
-          }
-        };
-      }
-    ])
-  ;
-
-  angular.module(moduleName)
-    .directive('mdcDtpNoclick', function () {
+ angular.module(moduleName)
+    .directive('mdDtpNoclick', function () {
       return {
         link: function (scope, el) {
           el.on('click', function (e) {
@@ -703,13 +495,12 @@
       };
     });
   angular.module(moduleName)
-    .directive('mdcDatetimePickerClock', [
+    .directive('mdDatetimePickerClock', [
       function () {
-
         var template = '<div class="dtp-picker-clock"><span ng-if="!points || points.length < 1">&nbsp;</span>'
           + '<div ng-repeat="point in points" class="dtp-picker-time" ng-style="point.style">'
-          + '   <a href="#" mdc-dtp-noclick ng-class="{selected: point.value===currentValue}" class="dtp-select-hour" ng-click="setTime(point.value)" ng-if="pointAvailable(point)">{{point.display}}</a>'
-          + '   <a href="#" mdc-dtp-noclick class="disabled dtp-select-hour" ng-if="!pointAvailable(point)">{{point.display}}</a>'
+          + '   <a href="#" md-dtp-noclick ng-class="{selected: point.value===currentValue}" class="dtp-select-hour" ng-click="setTime(point.value)" ng-if="pointAvailable(point)">{{point.display}}</a>'
+          + '   <a href="#" md-dtp-noclick class="disabled dtp-select-hour" ng-if="!pointAvailable(point)">{{point.display}}</a>'
           + '</div>'
           + '<div class="dtp-hand dtp-hour-hand"></div>'
           + '<div class="dtp-hand dtp-minute-hand"></div>'
@@ -886,5 +677,4 @@
           }
         }
       }]);
-
 })(moment);
