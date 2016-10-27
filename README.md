@@ -1,4 +1,4 @@
-# Angular Material DateTimePicker
+# Angular Material TimePicker
 
 Originally designed for Bootstrap Material, this has been modified to work with [Angular Material](https://material.angularjs.org/). This is an Android style date-time picker for Angular Material. Some added features include:
 
