@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   angular.module('mdDatetimePickerDemo', [
-      'ngMaterialDatePicker'
+      'ngMaterialTimePicker'
     ])
     .controller('DemoCtrl', function ($scope) {
       $scope.date = new Date();
