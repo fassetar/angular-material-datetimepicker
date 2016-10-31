@@ -41,13 +41,6 @@ Depends on the following library:
 - Angular Touch
 - MomentJS
 
-## Installing via Bower
-
-```
-bower install angular-material-datetimepicker
-```
-
-
 ## Live Example
 
 Click [here](http://logbon72.github.io/angular-material-datetimepicker) to see live examples.
